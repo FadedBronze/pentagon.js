@@ -27,7 +27,7 @@ export class RigidBody2D {
 
     transform.position = this.linearVelocity.scale(time).add(transform.position);
 
-    transform.rotationDegrees += this.rotationalVelocity * time;
+    transform.rotationDegrees += ((this.rotationalVelocity * 180) / Math.PI) * time;
 
     this.force = Vec2.zero();
   }

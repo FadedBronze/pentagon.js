@@ -1,6 +1,6 @@
 import { AABB } from "./AABB";
 import { Camera } from "./Camera";
-import { Collision, resolveCollisionBasic, resolveCollisionWithRotation } from "./Collision";
+import { Collision, resolveCollisionWithRotation } from "./Collision";
 import { GameObject } from "./GameObject";
 import { Polygon } from "./Polygon";
 import { RigidBody2D } from "./RigidBody2D";
@@ -110,7 +110,7 @@ export class World {
         new GameObject(
           new Polygon([new Vec2(-10, -10), new Vec2(-10, 10), new Vec2(10, 10), new Vec2(10, -10)]),
           new Transform(new Vec2(mouseCamPos.x, mouseCamPos.y), new Vec2(width, 1), 0),
-          new RigidBody2D(0.1, 0.2, "dynamic", 0.01)
+          new RigidBody2D(10, 0.2, "dynamic", 6 / 12)
         )
       );
 
@@ -130,7 +130,7 @@ export class World {
             new Vec2(-0.309016994375, -0.951056516295),
           ]),
           new Transform(new Vec2(mouseCamPos.x, mouseCamPos.y), new Vec2(1, 1), 18.2),
-          new RigidBody2D(0.1, 0.2, "dynamic", 0.01)
+          new RigidBody2D(10, 0.2, "dynamic", 6 / 12)
         )
       );
 
