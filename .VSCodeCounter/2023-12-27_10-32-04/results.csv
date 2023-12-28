@@ -1,0 +1,14 @@
+"filename", "language", "TypeScript", "CSS", "comment", "blank", "total"
+"c:\Code\web\sizings\src\AABB.ts", "TypeScript", 26, 0, 0, 7, 33
+"c:\Code\web\sizings\src\Camera.ts", "TypeScript", 75, 0, 1, 22, 98
+"c:\Code\web\sizings\src\Collision.ts", "TypeScript", 101, 0, 0, 31, 132
+"c:\Code\web\sizings\src\GameObject.ts", "TypeScript", 16, 0, 0, 4, 20
+"c:\Code\web\sizings\src\Polygon.ts", "TypeScript", 31, 0, 0, 11, 42
+"c:\Code\web\sizings\src\RigidBody2D.ts", "TypeScript", 31, 0, 1, 11, 43
+"c:\Code\web\sizings\src\SAT.ts", "TypeScript", 41, 0, 0, 14, 55
+"c:\Code\web\sizings\src\Transform.ts", "TypeScript", 43, 0, 0, 19, 62
+"c:\Code\web\sizings\src\Vec2.ts", "TypeScript", 47, 0, 0, 14, 61
+"c:\Code\web\sizings\src\main.ts", "TypeScript", 163, 0, 11, 59, 233
+"c:\Code\web\sizings\src\style.css", "CSS", 0, 15, 0, 3, 18
+"c:\Code\web\sizings\src\vite-env.d.ts", "TypeScript", 0, 0, 1, 1, 2
+"Total", "-", 574, 15, 14, 196, 799

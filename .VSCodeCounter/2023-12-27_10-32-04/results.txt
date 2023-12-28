@@ -1,0 +1,37 @@
+Date : 2023-12-27 10:32:04
+Directory : c:\Code\web\sizings\src
+Total : 12 files,  589 codes, 14 comments, 196 blanks, all 799 lines
+
+Languages
++------------+------------+------------+------------+------------+------------+
+| language   | files      | code       | comment    | blank      | total      |
++------------+------------+------------+------------+------------+------------+
+| TypeScript |         11 |        574 |         14 |        193 |        781 |
+| CSS        |          1 |         15 |          0 |          3 |         18 |
++------------+------------+------------+------------+------------+------------+
+
+Directories
++----------------------------------------+------------+------------+------------+------------+------------+
+| path                                   | files      | code       | comment    | blank      | total      |
++----------------------------------------+------------+------------+------------+------------+------------+
+| .                                      |         12 |        589 |         14 |        196 |        799 |
++----------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++----------------------------------------+------------+------------+------------+------------+------------+
+| filename                               | language   | code       | comment    | blank      | total      |
++----------------------------------------+------------+------------+------------+------------+------------+
+| c:\Code\web\sizings\src\AABB.ts        | TypeScript |         26 |          0 |          7 |         33 |
+| c:\Code\web\sizings\src\Camera.ts      | TypeScript |         75 |          1 |         22 |         98 |
+| c:\Code\web\sizings\src\Collision.ts   | TypeScript |        101 |          0 |         31 |        132 |
+| c:\Code\web\sizings\src\GameObject.ts  | TypeScript |         16 |          0 |          4 |         20 |
+| c:\Code\web\sizings\src\Polygon.ts     | TypeScript |         31 |          0 |         11 |         42 |
+| c:\Code\web\sizings\src\RigidBody2D.ts | TypeScript |         31 |          1 |         11 |         43 |
+| c:\Code\web\sizings\src\SAT.ts         | TypeScript |         41 |          0 |         14 |         55 |
+| c:\Code\web\sizings\src\Transform.ts   | TypeScript |         43 |          0 |         19 |         62 |
+| c:\Code\web\sizings\src\Vec2.ts        | TypeScript |         47 |          0 |         14 |         61 |
+| c:\Code\web\sizings\src\main.ts        | TypeScript |        163 |         11 |         59 |        233 |
+| c:\Code\web\sizings\src\style.css      | CSS        |         15 |          0 |          3 |         18 |
+| c:\Code\web\sizings\src\vite-env.d.ts  | TypeScript |          0 |          1 |          1 |          2 |
+| Total                                  |            |        589 |         14 |        196 |        799 |
++----------------------------------------+------------+------------+------------+------------+------------+
