@@ -26,7 +26,7 @@ export class AABB {
     this.minY = minY;
   }
 
-  static compare(a: AABB, b: AABB) {
+  static overlap(a: AABB, b: AABB) {
     return a.maxX > b.minX && a.minX < b.maxX && a.maxY > b.minY && a.minY < b.maxY;
   }
 }

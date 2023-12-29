@@ -4,67 +4,17 @@ import { RigidBody2D } from "./RigidBody2D";
 import "./style.css";
 import { Transform } from "./Transform";
 import { Vec2 } from "./Vec2";
-import { GameObject } from "./GameObject";
 import { World } from "./World";
+import { GameObject } from "./GameObject";
+import { getDeltaMilis } from "./utils/getDeltaTimeMilliseconds";
+import { Input } from "./Input";
+import { Canvas } from "./Canvas";
 
-const canvas: HTMLCanvasElement = document.getElementById("canvas") as HTMLCanvasElement;
-const ctx = canvas.getContext("2d")!;
+const canvasElement: HTMLCanvasElement = document.getElementById("canvas") as HTMLCanvasElement;
 
-function genGetMouse() {
-  const mousePos = Vec2.zero();
-  let mouseLeftDown = false;
-  let mouseRightDown = false;
-
-  canvas.addEventListener("mousemove", (e) => {
-    const rect = canvas.getBoundingClientRect();
-
-    mousePos.x = e.clientX - rect.left;
-    mousePos.y = e.clientY - rect.top;
-  });
-
-  canvas.addEventListener("mousedown", (e) => {
-    if (e.button === 2) mouseRightDown = true;
-    if (e.button === 0) mouseLeftDown = true;
-  });
-
-  canvas.addEventListener("mouseup", (e) => {
-    if (e.button === 2) mouseRightDown = false;
-    if (e.button === 0) mouseLeftDown = false;
-  });
-
-  return () => [mouseRightDown, mouseLeftDown, mousePos] as [boolean, boolean, Vec2];
-}
-
-function genGetScreenSize() {
-  let windowX = window.innerWidth;
-  let windowY = window.innerHeight;
-
-  window.addEventListener("resize", () => {
-    windowX = window.innerWidth;
-    windowY = window.innerHeight;
-  });
-
-  return () => [windowX, windowY] as [number, number];
-}
-
-function genGetDeltaMilis() {
-  let lastUpdate = Date.now();
-
-  return () => {
-    const now = Date.now();
-    const dt = now - lastUpdate;
-    lastUpdate = now;
-
-    return dt;
-  };
-}
-
-export const getMousePos = genGetMouse();
-export const getScreenSize = genGetScreenSize();
-export const getDeltaMilis = genGetDeltaMilis();
-
-export const camera = new Camera(1, new Vec2(0, 0), 0);
-const world = new World(camera);
+const camera = new Camera(1, new Vec2(0, 0), 0);
+const canvas = new Canvas(camera, canvasElement, 24);
+const world = new World();
 
 const platform = new GameObject(
   new Polygon([new Vec2(-10, -10), new Vec2(-10, 10), new Vec2(10, 10), new Vec2(10, -10)]),
@@ -86,18 +36,80 @@ const slope2 = new GameObject(
 
 world.addObjects(platform, slope, slope2);
 
-function tick() {
-  const [width, height] = getScreenSize();
-  canvas.width = width;
-  canvas.height = height;
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+// function main() {}
 
-  world.render(ctx);
+function tick() {
   requestAnimationFrame(tick);
 }
 
+let lastSpawned = 0;
+
+const input = new Input(canvasElement);
+
 function update() {
-  world.update(getDeltaMilis() / 1000, ctx);
+  const deltaTime = getDeltaMilis() / 1000;
+
+  const mouseCamPos = canvas.frameToWorldSpace(input.getMousePosition());
+
+  lastSpawned += deltaTime;
+
+  if (input.getMouseRightButton() && lastSpawned > 0.1) {
+    const width = Math.random() + 1;
+
+    world.addObjects(
+      new GameObject(
+        new Polygon([new Vec2(-10, -10), new Vec2(-10, 10), new Vec2(10, 10), new Vec2(10, -10)]),
+        new Transform(new Vec2(mouseCamPos.x, mouseCamPos.y), new Vec2(width, 1), 0),
+        new RigidBody2D(10, 0.2, "dynamic", 6 / 12)
+      )
+    );
+
+    lastSpawned = 0;
+  }
+
+  if (input.getMouseLeftButton() && lastSpawned > 0.1) {
+    world.addObjects(
+      new GameObject(
+        new Polygon([
+          new Vec2(-1.0, 0.0),
+          new Vec2(-0.309016994375, 0.951056516295),
+          new Vec2(0.809016994375, 0.587785252292),
+          new Vec2(0.809016994375, -0.587785252292),
+          new Vec2(-0.309016994375, -0.951056516295),
+        ]),
+        new Transform(new Vec2(mouseCamPos.x, mouseCamPos.y), new Vec2(1, 1), 18.2),
+        new RigidBody2D(10, 0.2, "dynamic", 6 / 12)
+      )
+    );
+
+    lastSpawned = 0;
+  }
+
+  if (input.getKey("r")) {
+    world.objects = [];
+    world.addObjects(platform, slope, slope2);
+  }
+
+  if (input.getKey("w")) {
+    camera.position.y += 0.05;
+  }
+
+  if (input.getKey("a")) {
+    camera.position.x += 0.05;
+  }
+
+  if (input.getKey("s")) {
+    camera.position.y -= 0.05;
+  }
+
+  if (input.getKey("d")) {
+    camera.position.x -= 0.05;
+  }
+
+  camera.zoom = Math.max((input.scrollOffset / 1000) ** 3, 0.1);
+
+  world.update(deltaTime);
+  canvas.render(world.objects);
 }
 
 setInterval(update, 1 / 60);

@@ -173,7 +173,6 @@ export function resolveCollisionWithRotation(collision: Collision) {
       rbList[i].cross(impulse) * collision.bodyB.rigidBody.invInertia;
   }
 }
-
 export class Collision {
   bodyA: GameObject;
   bodyB: GameObject;
