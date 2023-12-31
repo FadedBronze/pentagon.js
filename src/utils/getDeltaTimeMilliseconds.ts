@@ -10,4 +10,4 @@ function genGetDeltaMilis() {
   };
 }
 
-export const getDeltaMilis = genGetDeltaMilis();
+export default genGetDeltaMilis;

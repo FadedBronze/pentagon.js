@@ -22,6 +22,9 @@ export class Camera {
   get position() {
     return this.transform.position;
   }
+  set position(value) {
+    this.transform.position = value;
+  }
 
   constructor(zoom: number, position: Vec2, rotationDegrees: number) {
     if (zoom < 0) {

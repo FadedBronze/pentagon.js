@@ -1,5 +1,7 @@
 import { Camera } from "./Camera";
-import { GameObject } from "./GameObject";
+import { CircleCollider } from "./Physics/Colliders/CircleCollider";
+import { ConvexPolygonCollider } from "./Physics/Colliders/ConvexPolygonCollider";
+import { GameObject } from "./Physics/GameObject";
 import { Transform } from "./Transform";
 import { Vec2 } from "./Vec2";
 import { getScreenSize } from "./utils/getScreenSize";
@@ -56,18 +58,78 @@ export class Canvas {
     );
 
     for (let i = 0; i < objects.length; i++) {
-      const polygon = objects[i].polygon;
-      const objectTransform = objects[i].transform;
+      const object = objects[i];
+      const objectTransform = objects[i].rigidBody.transform;
 
-      renderPolygon(
-        polygon.data,
-        this.ctx,
-        [objectTransform, this.camera.transform, this.transform],
-        "black",
-        false
-      );
+      if (object.collider instanceof CircleCollider) {
+        renderCircle(
+          object.collider.radius,
+          this.ctx,
+          [objectTransform, this.camera.transform, this.transform],
+          "black",
+          false
+        );
+      } else if (object.collider instanceof ConvexPolygonCollider) {
+        renderPolygon(
+          object.collider.vertices,
+          this.ctx,
+          [objectTransform, this.camera.transform, this.transform],
+          "black",
+          false
+        );
+      }
     }
   }
+
+  renderDebugPoints(points: Vec2[]) {
+    const transformedPoints = this.transform.transformPoints(
+      this.camera.transform.transformPoints(points)
+    );
+
+    for (let i = 0; i < transformedPoints.length; i++) {
+      const pos = transformedPoints[i];
+      this.ctx.fillStyle = "yellow";
+      this.ctx.fillRect(pos.x - 8, pos.y - 8, 16, 16);
+    }
+  }
+}
+
+function renderCircle(
+  radius: number,
+  ctx: CanvasRenderingContext2D,
+  transforms: Transform[],
+  color: string,
+  outline: boolean
+) {
+  ctx.fillStyle = color;
+  ctx.strokeStyle = color;
+
+  let radiusAsVector = [new Vec2(0, 0), new Vec2(radius, 0)];
+
+  for (let i = 0; i < transforms.length; i++) {
+    const transform = transforms[i];
+    radiusAsVector = transform.transformPoints(radiusAsVector);
+  }
+
+  const center = radiusAsVector[0];
+  const edge = radiusAsVector[1];
+
+  const transformedRadius = edge.subtract(center).magnitude();
+
+  ctx.beginPath();
+  ctx.arc(center.x, center.y, transformedRadius, 0, 2 * Math.PI);
+
+  if (outline) {
+    ctx.stroke();
+  } else {
+    ctx.fill();
+  }
+
+  ctx.strokeStyle = "rgb(255, 255, 255)";
+  ctx.lineWidth = 10;
+  ctx.moveTo(center.x, center.y);
+  ctx.lineTo(edge.x, edge.y);
+  ctx.stroke();
 }
 
 function renderPolygon(

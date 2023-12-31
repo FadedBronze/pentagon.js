@@ -1,14 +1,15 @@
 import { Camera } from "./Camera";
-import { Polygon } from "./Polygon";
-import { RigidBody2D } from "./RigidBody2D";
+import { RigidBody2D } from "./Physics/RigidBody2D";
 import "./style.css";
 import { Transform } from "./Transform";
 import { Vec2 } from "./Vec2";
-import { World } from "./World";
-import { GameObject } from "./GameObject";
-import { getDeltaMilis } from "./utils/getDeltaTimeMilliseconds";
+import { World } from "./Physics/World";
+import { GameObject } from "./Physics/GameObject";
+import genGetDeltaMilis from "./utils/getDeltaTimeMilliseconds";
 import { Input } from "./Input";
 import { Canvas } from "./Canvas";
+import { ConvexPolygonCollider } from "./Physics/Colliders/ConvexPolygonCollider";
+import { CircleCollider } from "./Physics/Colliders/CircleCollider";
 
 const canvasElement: HTMLCanvasElement = document.getElementById("canvas") as HTMLCanvasElement;
 
@@ -17,28 +18,67 @@ const canvas = new Canvas(camera, canvasElement, 24);
 const world = new World();
 
 const platform = new GameObject(
-  new Polygon([new Vec2(-10, -10), new Vec2(-10, 10), new Vec2(10, 10), new Vec2(10, -10)]),
-  new Transform(new Vec2(0, -6), new Vec2(20, 0.5), 0),
-  new RigidBody2D(0, 1, "static", 0)
+  new ConvexPolygonCollider([
+    new Vec2(-10, -10),
+    new Vec2(-10, 10),
+    new Vec2(10, 10),
+    new Vec2(10, -10),
+  ]),
+  new RigidBody2D(0, 1, "static", 0, 0.6, 0.4, new Transform(new Vec2(0, -6), new Vec2(20, 0.5), 0))
 );
 
 const slope = new GameObject(
-  new Polygon([new Vec2(-10, -10), new Vec2(-10, 10), new Vec2(10, 10), new Vec2(10, -10)]),
-  new Transform(new Vec2(7, 0), new Vec2(8, 0.5), 90),
-  new RigidBody2D(0, 1, "static", 0)
+  new ConvexPolygonCollider([
+    new Vec2(-10, -10),
+    new Vec2(-10, 10),
+    new Vec2(10, 10),
+    new Vec2(10, -10),
+  ]),
+  new RigidBody2D(0, 1, "static", 0, 0.6, 0.4, new Transform(new Vec2(7, 0), new Vec2(8, 0.5), 90))
 );
 
 const slope2 = new GameObject(
-  new Polygon([new Vec2(-10, -10), new Vec2(-10, 10), new Vec2(10, 10), new Vec2(10, -10)]),
-  new Transform(new Vec2(-7, 0), new Vec2(8, 0.5), -30),
-  new RigidBody2D(0, 1, "static", 0)
+  new ConvexPolygonCollider([
+    new Vec2(-10, -10),
+    new Vec2(-10, 10),
+    new Vec2(10, 10),
+    new Vec2(10, -10),
+  ]),
+  new RigidBody2D(
+    0,
+    1,
+    "static",
+    0,
+    0.6,
+    0.4,
+    new Transform(new Vec2(-7, 0), new Vec2(8, 0.5), -30)
+  )
 );
 
-world.addObjects(platform, slope, slope2);
+const square = new GameObject(
+  new ConvexPolygonCollider([
+    new Vec2(-10, -10),
+    new Vec2(-10, 10),
+    new Vec2(10, 10),
+    new Vec2(10, -10),
+  ]),
 
-// function main() {}
+  new RigidBody2D(
+    10,
+    0.2,
+    "static",
+    6 / 12,
+    0.6,
+    0.4,
+    new Transform(new Vec2(0, 10), new Vec2(1, 1), 0)
+  )
+);
 
 function tick() {
+  canvas.render(world.objects);
+  canvas.renderDebugPoints(renderDebugPoints);
+  renderDebugPoints = [];
+
   requestAnimationFrame(tick);
 }
 
@@ -46,21 +86,53 @@ let lastSpawned = 0;
 
 const input = new Input(canvasElement);
 
-function update() {
-  const deltaTime = getDeltaMilis() / 1000;
+export let renderDebugPoints: Vec2[] = [];
 
-  const mouseCamPos = canvas.frameToWorldSpace(input.getMousePosition());
+const physicsDeltaMilis = genGetDeltaMilis();
+
+function update() {
+  const deltaTime = physicsDeltaMilis() / 1000;
+
+  const mouse = input.getMousePosition();
+
+  const mouseWorldPos = canvas.frameToWorldSpace(mouse);
 
   lastSpawned += deltaTime;
 
   if (input.getMouseRightButton() && lastSpawned > 0.1) {
-    const width = Math.random() + 1;
+    // world.addObjects(
+    //   new GameObject(
+    //     new ConvexPolygonCollider([
+    //       new Vec2(-10, -10),
+    //       new Vec2(-10, 10),
+    //       new Vec2(10, 10),
+    //       new Vec2(10, -10),
+    //     ]),
+
+    //     new RigidBody2D(
+    //       10,
+    //       0.2,
+    //       "dynamic",
+    //       6 / 12,
+    //       0.6,
+    //       0.4,
+    //       new Transform(new Vec2(mouseWorldPos.x, mouseWorldPos.y), new Vec2(width, 1), 0)
+    //     )
+    //   )
+    // );
 
     world.addObjects(
       new GameObject(
-        new Polygon([new Vec2(-10, -10), new Vec2(-10, 10), new Vec2(10, 10), new Vec2(10, -10)]),
-        new Transform(new Vec2(mouseCamPos.x, mouseCamPos.y), new Vec2(width, 1), 0),
-        new RigidBody2D(10, 0.2, "dynamic", 6 / 12)
+        new CircleCollider(1),
+        new RigidBody2D(
+          10,
+          0.6,
+          "dynamic",
+          6,
+          0.6,
+          0.4,
+          new Transform(new Vec2(mouseWorldPos.x, mouseWorldPos.y), new Vec2(1, 1), 0)
+        )
       )
     );
 
@@ -70,47 +142,71 @@ function update() {
   if (input.getMouseLeftButton() && lastSpawned > 0.1) {
     world.addObjects(
       new GameObject(
-        new Polygon([
+        new ConvexPolygonCollider([
           new Vec2(-1.0, 0.0),
           new Vec2(-0.309016994375, 0.951056516295),
           new Vec2(0.809016994375, 0.587785252292),
           new Vec2(0.809016994375, -0.587785252292),
           new Vec2(-0.309016994375, -0.951056516295),
         ]),
-        new Transform(new Vec2(mouseCamPos.x, mouseCamPos.y), new Vec2(1, 1), 18.2),
-        new RigidBody2D(10, 0.2, "dynamic", 6 / 12)
+
+        new RigidBody2D(
+          100,
+          0.2,
+          "dynamic",
+          12,
+          0.6,
+          0.4,
+          new Transform(new Vec2(mouseWorldPos.x, mouseWorldPos.y), new Vec2(1, 1), 18.2)
+        )
       )
     );
+
+    // world.addObjects(
+    //   new GameObject(
+    //     new CircleCollider(1),
+    //     new RigidBody2D(
+    //       0,
+    //       0.001,
+    //       "static",
+    //       0,
+    //       0.6,
+    //       0.4,
+    //       new Transform(new Vec2(mouseWorldPos.x, mouseWorldPos.y), new Vec2(1, 1), 0)
+    //     )
+    //   )
+    // );
 
     lastSpawned = 0;
   }
 
   if (input.getKey("r")) {
     world.objects = [];
-    world.addObjects(platform, slope, slope2);
+
+    world.addObjects(platform, slope, slope2, square)[3];
   }
 
   if (input.getKey("w")) {
-    camera.position.y += 0.05;
+    square.rigidBody.transform.position.y += 0.05;
   }
 
   if (input.getKey("a")) {
-    camera.position.x += 0.05;
+    square.rigidBody.transform.position.x -= 0.05;
   }
 
   if (input.getKey("s")) {
-    camera.position.y -= 0.05;
+    square.rigidBody.transform.position.y -= 0.05;
   }
 
   if (input.getKey("d")) {
-    camera.position.x -= 0.05;
+    square.rigidBody.transform.position.x += 0.05;
   }
 
-  camera.zoom = Math.max((input.scrollOffset / 1000) ** 3, 0.1);
+  camera.zoom += -input.getScrollOffset() / 1000;
 
   world.update(deltaTime);
-  canvas.render(world.objects);
 }
 
 setInterval(update, 1 / 60);
+
 tick();

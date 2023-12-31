@@ -5,7 +5,7 @@ export class Input {
   private mouseRightDown: boolean = false;
   private mousePosition: Vec2 = Vec2.zero();
   private keys: Set<string> = new Set();
-  scrollOffset = 0;
+  private scrollOffset = 0;
 
   constructor(canvas: HTMLCanvasElement) {
     canvas.setAttribute("tabindex", "0");
@@ -41,7 +41,9 @@ export class Input {
   }
 
   getScrollOffset() {
-    return this.scrollOffset;
+    const off = this.scrollOffset;
+    this.scrollOffset = 0;
+    return off;
   }
 
   getMousePosition() {
