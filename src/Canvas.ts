@@ -1,4 +1,5 @@
 import { Camera } from "./Camera";
+import { BoundingBox } from "./Physics/AABB";
 import { CircleCollider } from "./Physics/Colliders/CircleCollider";
 import { ConvexPolygonCollider } from "./Physics/Colliders/ConvexPolygonCollider";
 import { GameObject } from "./Physics/GameObject";
@@ -12,6 +13,7 @@ export class Canvas {
   private ctx: CanvasRenderingContext2D;
   private ppu: number;
   private transform!: Transform;
+  public static debugRenderPoints: Vec2[] = [];
 
   constructor(camera: Camera, canvas: HTMLCanvasElement, ppu: number) {
     this.camera = camera;
@@ -25,14 +27,8 @@ export class Canvas {
   }
 
   frameToWorldSpace(v: Vec2) {
-    const screenTransform = new Transform(
-      new Vec2(this.ctx.canvas.width / 2, this.ctx.canvas.height / 2),
-      new Vec2(this.ppu, this.ppu),
-      0
-    );
-
     return this.camera.transform.inverseTransformPoints([
-      screenTransform.inverseTransformPoints([v])[0],
+      this.transform.inverseTransformPoints([v])[0],
     ])[0];
   }
 
@@ -43,19 +39,13 @@ export class Canvas {
 
     this.transform = new Transform(
       new Vec2(this.canvasElement.width / 2, this.canvasElement.height / 2),
-      new Vec2(this.ppu, this.ppu),
+      new Vec2(this.ppu, -this.ppu),
       0
     );
   }
 
   render(objects: GameObject[]) {
     this.resize();
-
-    this.transform = new Transform(
-      new Vec2(this.ctx.canvas.width / 2, this.ctx.canvas.height / 2),
-      new Vec2(this.ppu, this.ppu),
-      0
-    );
 
     for (let i = 0; i < objects.length; i++) {
       const object = objects[i];
@@ -81,9 +71,9 @@ export class Canvas {
     }
   }
 
-  renderDebugPoints(points: Vec2[]) {
+  renderDebugPoints() {
     const transformedPoints = this.transform.transformPoints(
-      this.camera.transform.transformPoints(points)
+      this.camera.transform.transformPoints(Canvas.debugRenderPoints)
     );
 
     for (let i = 0; i < transformedPoints.length; i++) {
@@ -91,6 +81,79 @@ export class Canvas {
       this.ctx.fillStyle = "yellow";
       this.ctx.fillRect(pos.x - 8, pos.y - 8, 16, 16);
     }
+
+    Canvas.debugRenderPoints = [];
+  }
+
+  renderDebugGrid(cellSizeX: number, cellSizeY: number, worldAABB: BoundingBox) {
+    console.time("grid");
+
+    this.ctx.imageSmoothingEnabled = false;
+    this.ctx.translate(0.5, 0.5);
+
+    const cellVector = new Vec2(cellSizeX, cellSizeY);
+
+    const transformedCellVector = this.camera.transform.transformPoints([cellVector])[0];
+
+    let cellX = Math.floor(transformedCellVector.x * this.ppu);
+    let cellY = Math.floor(transformedCellVector.y * this.ppu);
+
+    this.ctx.strokeStyle = "rgba(255, 0, 0, 1)";
+
+    this.ctx.lineWidth = 4;
+
+    this.ctx.beginPath();
+
+    const aabb = worldAABB.transform(this.camera.transform).transform(this.transform);
+
+    for (
+      let i = Math.floor(this.canvasElement.width / 2);
+      i < aabb.maxX && i < this.canvasElement.width;
+      i += cellX
+    ) {
+      this.ctx.moveTo(i, Math.max(0, aabb.minY));
+      this.ctx.lineTo(i, Math.min(this.canvasElement.height, aabb.maxY));
+    }
+
+    for (let i = Math.floor(this.canvasElement.width / 2); i >= aabb.minX && i >= 0; i -= cellX) {
+      this.ctx.moveTo(i, Math.max(0, aabb.minY));
+      this.ctx.lineTo(i, Math.min(this.canvasElement.height, aabb.maxY));
+    }
+
+    let its = 400;
+
+    for (
+      let i = Math.floor(this.canvasElement.height / 2);
+      i < aabb.maxY && i < this.canvasElement.height;
+      i += cellY
+    ) {
+      this.ctx.moveTo(Math.max(0, aabb.minX), i);
+      this.ctx.lineTo(Math.min(this.canvasElement.width, aabb.maxX), i);
+
+      its--;
+
+      if (its <= 0) {
+        console.log(i);
+        break;
+      }
+    }
+
+    for (let i = Math.floor(this.canvasElement.height / 2); i >= aabb.minY && i >= 0; i -= cellY) {
+      its--;
+
+      if (its <= 0) {
+        break;
+      }
+      this.ctx.moveTo(Math.max(0, aabb.minX), i);
+      this.ctx.lineTo(Math.min(this.canvasElement.width, aabb.maxX), i);
+    }
+
+    this.ctx.stroke();
+
+    this.ctx.translate(0, 0);
+    this.ctx.imageSmoothingEnabled = true;
+
+    console.timeEnd("grid");
   }
 }
 

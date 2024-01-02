@@ -1,6 +1,12 @@
 import { Vec2 } from "../Vec2";
+import { getClosestPointToPoint } from "../utils/math/getClosestPointToPoint";
 
-export default function SAT(r1: Vec2[], r2: Vec2[], center1: Vec2, center2: Vec2): [Vec2, number] {
+export default function polygonPolygonCollisionNormalDepth(
+  r1: Vec2[],
+  r2: Vec2[],
+  center1: Vec2,
+  center2: Vec2
+): [Vec2, number] {
   let depth = Number.POSITIVE_INFINITY;
   let normal = Vec2.zero();
 
@@ -71,24 +77,7 @@ function projectCircle(center: Vec2, radius: number, axis: Vec2) {
   }
 }
 
-function getClosestPointToPoint(vertices: Vec2[], position: Vec2) {
-  let closestDistance = Number.POSITIVE_INFINITY;
-  let closestPoint = Vec2.zero();
-
-  for (let i = 0; i < vertices.length; i++) {
-    const vertex = vertices[i];
-    const distance = vertex.distance(position);
-
-    if (distance < closestDistance) {
-      closestPoint = vertex;
-      closestDistance = distance;
-    }
-  }
-
-  return closestPoint;
-}
-
-export function SATWithCircle(
+export function polygonCircleCollisionNormalDepth(
   vertices: Vec2[],
   radius: number,
   circleCenter: Vec2,

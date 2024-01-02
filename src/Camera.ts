@@ -3,13 +3,14 @@ import { Vec2 } from "./Vec2";
 
 export class Camera {
   transform: Transform;
+  static readonly MIN_ZOOM = 0.2;
 
   get zoom() {
     return this.transform.scale.x;
   }
   set zoom(value) {
-    this.transform.scale.x = value;
-    this.transform.scale.y = -value;
+    this.transform.scale.x = Math.max(value, Camera.MIN_ZOOM);
+    this.transform.scale.y = Math.max(value, Camera.MIN_ZOOM);
   }
 
   get rotation() {

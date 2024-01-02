@@ -24,8 +24,8 @@ export function resolveCollisionWithRotationAndFriction(collision: Collision) {
     raList[i] = ra;
     rbList[i] = rb;
 
-    const raPerpendicular = new Vec2(-ra.y, ra.x);
-    const rbPerpendicular = new Vec2(-rb.y, rb.x);
+    const raPerpendicular = ra.perpendicular();
+    const rbPerpendicular = rb.perpendicular();
 
     const angularLinearVelocityA = raPerpendicular.scale(
       collision.bodyA.rigidBody.rotationalVelocity
@@ -40,9 +40,9 @@ export function resolveCollisionWithRotationAndFriction(collision: Collision) {
 
     const contactVelocityMag = relativeVelocity.dot(collision.normal);
 
-    // if (contactVelocityMag > 0) {
-    //   continue;
-    // }
+    if (contactVelocityMag > 0) {
+      continue;
+    }
 
     const raPerpendicularDotNormal = raPerpendicular.dot(collision.normal);
     const rbPerpendicularDotNormal = rbPerpendicular.dot(collision.normal);

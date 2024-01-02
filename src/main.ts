@@ -13,9 +13,10 @@ import { CircleCollider } from "./Physics/Colliders/CircleCollider";
 
 const canvasElement: HTMLCanvasElement = document.getElementById("canvas") as HTMLCanvasElement;
 
+const PPU = 24;
 const camera = new Camera(1, new Vec2(0, 0), 0);
-const canvas = new Canvas(camera, canvasElement, 24);
-const world = new World();
+const canvas = new Canvas(camera, canvasElement, PPU);
+let world = new World();
 
 const platform = new GameObject(
   new ConvexPolygonCollider([
@@ -24,7 +25,17 @@ const platform = new GameObject(
     new Vec2(10, 10),
     new Vec2(10, -10),
   ]),
-  new RigidBody2D(0, 1, "static", 0, 0.6, 0.4, new Transform(new Vec2(0, -6), new Vec2(20, 0.5), 0))
+  new RigidBody2D(0, 1, "static", 0, 0.6, 0.4, new Transform(new Vec2(-7, -6), new Vec2(9, 0.5), 0))
+);
+
+const platform2 = new GameObject(
+  new ConvexPolygonCollider([
+    new Vec2(-10, -10),
+    new Vec2(-10, 10),
+    new Vec2(10, 10),
+    new Vec2(10, -10),
+  ]),
+  new RigidBody2D(0, 1, "static", 0, 0.6, 0.4, new Transform(new Vec2(7, -6), new Vec2(9, 0.5), 0))
 );
 
 const slope = new GameObject(
@@ -34,7 +45,7 @@ const slope = new GameObject(
     new Vec2(10, 10),
     new Vec2(10, -10),
   ]),
-  new RigidBody2D(0, 1, "static", 0, 0.6, 0.4, new Transform(new Vec2(7, 0), new Vec2(8, 0.5), 90))
+  new RigidBody2D(0, 1, "static", 0, 0.6, 0.4, new Transform(new Vec2(13, 0), new Vec2(7, 0.5), 90))
 );
 
 const slope2 = new GameObject(
@@ -51,7 +62,7 @@ const slope2 = new GameObject(
     0,
     0.6,
     0.4,
-    new Transform(new Vec2(-7, 0), new Vec2(8, 0.5), -30)
+    new Transform(new Vec2(-13, 0), new Vec2(7, 0.5), 90)
   )
 );
 
@@ -75,9 +86,11 @@ const square = new GameObject(
 );
 
 function tick() {
+  canvas.resize();
+  // canvas.renderDebugGrid(2, 2);
   canvas.render(world.objects);
-  canvas.renderDebugPoints(renderDebugPoints);
-  renderDebugPoints = [];
+  canvas.renderDebugPoints();
+  canvas.renderDebugGrid(1, 1, world.bounds);
 
   requestAnimationFrame(tick);
 }
@@ -85,8 +98,6 @@ function tick() {
 let lastSpawned = 0;
 
 const input = new Input(canvasElement);
-
-export let renderDebugPoints: Vec2[] = [];
 
 const physicsDeltaMilis = genGetDeltaMilis();
 
@@ -181,9 +192,9 @@ function update() {
   }
 
   if (input.getKey("r")) {
-    world.objects = [];
+    world = new World();
 
-    world.addObjects(platform, slope, slope2, square)[3];
+    world.addObjects(platform, square, platform2, slope, slope2);
   }
 
   if (input.getKey("w")) {
@@ -204,7 +215,9 @@ function update() {
 
   camera.zoom += -input.getScrollOffset() / 1000;
 
-  world.update(deltaTime);
+  console.time("update");
+  world.update(deltaTime, 64);
+  console.timeEnd("update");
 }
 
 setInterval(update, 1 / 60);

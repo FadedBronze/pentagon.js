@@ -1,11 +1,8 @@
+import { GetBoundingBox } from "../AABB";
 import { GameObject } from "../GameObject";
-import { CircleCircleCollision, CircleCollider } from "./CircleCollider";
+import { CircleCircleCollision, CircleCollider, PolygonCircleCollision } from "./CircleCollider";
 import { Collision } from "./Collision";
-import {
-  ConvexPolygonCollider,
-  PolygonCircleCollision,
-  PolygonPolygonCollision,
-} from "./ConvexPolygonCollider";
+import { ConvexPolygonCollider, PolygonPolygonCollision } from "./ConvexPolygonCollider";
 
 const CirclePolygonCollision = (a: GameObject, b: GameObject) => {
   const collision = PolygonCircleCollision(b, a);
@@ -13,7 +10,7 @@ const CirclePolygonCollision = (a: GameObject, b: GameObject) => {
   return collision;
 };
 
-export type Collider = ConvexPolygonCollider | CircleCollider;
+export type Collider = (ConvexPolygonCollider | CircleCollider) & GetBoundingBox;
 
 //---------------------------------------------------------------------------
 
