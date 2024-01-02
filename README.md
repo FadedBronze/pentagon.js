@@ -1,10 +1,9 @@
 # Pentagon js
 
-A 2D physics engine written in Typescript.
+A 2D physics simulation written in Typescript.
 
-Currently not usable as a library.
-
-Made by following Two-Bit Codings physics engine series written in c#.
+credits:
+Two-Bit Codings physics engine series written in c#.
 
 # To run
 
